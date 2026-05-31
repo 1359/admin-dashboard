@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import type { NavItem } from '../types/navigation';
-import { FiHome, FiUsers, FiSettings } from 'react-icons/fi';
+import { FiHome, FiUsers, FiPackage, FiMessageSquare, FiSettings } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '../store/store';
 import { logout, selectAuthUser } from '../store/slices/authSlice';
 
@@ -14,6 +14,8 @@ interface MainLayoutProps {
 const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', path: '/', icon: <FiHome /> },
   { id: 'users', label: 'Users', path: '/users', icon: <FiUsers /> },
+  { id: 'products', label: 'Products', path: '/products', icon: <FiPackage /> },
+  { id: 'feedback', label: 'Feedback', path: '/feedback', icon: <FiMessageSquare /> },
   { id: 'settings', label: 'Settings', path: '/settings', icon: <FiSettings /> },
 ];
 

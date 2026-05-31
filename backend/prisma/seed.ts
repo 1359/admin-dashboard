@@ -15,6 +15,19 @@ const users = [
   { name: 'Jake Wilson', email: 'jake@example.com', username: 'jake_w', phone: '+1-555-0110', website: '' },
 ];
 
+const products = [
+  { name: 'Wireless Headphones', category: 'Electronics', price: 79.99, stock: 42 },
+  { name: 'Mechanical Keyboard', category: 'Electronics', price: 129.99, stock: 18 },
+  { name: 'USB-C Hub', category: 'Electronics', price: 34.99, stock: 65 },
+  { name: 'Desk Lamp', category: 'Office', price: 24.99, stock: 30 },
+  { name: 'Notebook (A5)', category: 'Stationery', price: 8.99, stock: 120 },
+  { name: 'Ergonomic Mouse', category: 'Electronics', price: 49.99, stock: 25 },
+  { name: 'Standing Desk Mat', category: 'Office', price: 39.99, stock: 14 },
+  { name: 'Webcam HD 1080p', category: 'Electronics', price: 59.99, stock: 9 },
+  { name: 'Blue Pen Set', category: 'Stationery', price: 4.99, stock: 200 },
+  { name: 'Monitor Arm', category: 'Office', price: 89.99, stock: 11 },
+];
+
 async function main() {
   console.log('Seeding database...');
   for (const user of users) {
@@ -25,6 +38,15 @@ async function main() {
     });
   }
   console.log(`Seeded ${users.length} users.`);
+
+  for (const product of products) {
+    await prisma.product.upsert({
+      where: { id: products.indexOf(product) + 1 },
+      update: {},
+      create: product,
+    });
+  }
+  console.log(`Seeded ${products.length} products.`);
 }
 
 main()

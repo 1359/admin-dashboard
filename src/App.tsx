@@ -3,6 +3,8 @@ import { MainLayout } from './layouts';
 import {
   DashboardPage,
   UsersPage,
+  ProductsPage,
+  FeedbackPage,
   SettingsPage,
   LoginPage,
   NotFoundPage,
@@ -33,6 +35,26 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <UsersPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <ProductsPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/feedback"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <FeedbackPage />
               </MainLayout>
             </ProtectedRoute>
           }
