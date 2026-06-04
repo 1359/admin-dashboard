@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { FiSearch, FiPackage } from 'react-icons/fi';
+import { useState, useEffect } from "react";
+import { FiSearch, FiPackage } from "react-icons/fi";
 
 interface Product {
   id: number;
@@ -8,38 +8,55 @@ interface Product {
   price: number;
   stock: number;
 }
+interface ProductState {
+  error: string;
+  loading: boolean;
+  searchQuery: string;
+}
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [state, setState] = useState<ProductState>({
+    error: "",
+    loading: false,
+    searchQuery: "",
+  });
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/products')
+    fetch("http://localhost:3001/api/products")
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);
-        setLoading(false);
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+        }));
       })
       .catch(() => {
-        setError('Failed to load products.');
-        setLoading(false);
+        setState((prev) => ({
+          ...prev,
+          error: "Failed to load products.",
+          loading: false,
+        }));
       });
   }, []);
 
   const filteredProducts = products.filter(
     (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchQuery.toLowerCase())
+      p.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+      p.category.toLowerCase().includes(state.searchQuery.toLowerCase()),
   );
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Products</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">Browse all products in the catalog</p>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Products
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Browse all products in the catalog
+        </p>
       </div>
 
       {/* Search Bar */}
@@ -52,8 +69,13 @@ const ProductsPage = () => {
           <input
             type="text"
             placeholder="Search by name or category..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={state.searchQuery}
+            onChange={(e) =>
+              setState((prev) => ({
+                ...prev,
+                searchQuery: e.target.value,
+              }))
+            }
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -61,18 +83,22 @@ const ProductsPage = () => {
 
       {/* Content */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        {loading ? (
+        {state.loading ? (
           <div className="flex items-center justify-center h-64">
-            <p className="text-gray-500 dark:text-gray-400">Loading products...</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              Loading products...
+            </p>
           </div>
-        ) : error ? (
+        ) : state.error ? (
           <div className="flex items-center justify-center h-64">
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-500">{state.error}</p>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 gap-2">
             <FiPackage size={40} className="text-gray-300" />
-            <p className="text-gray-500 dark:text-gray-400">No products found</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No products found
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -114,8 +140,8 @@ const ProductsPage = () => {
                       <span
                         className={`font-medium ${
                           product.stock <= 10
-                            ? 'text-red-600 dark:text-red-400'
-                            : 'text-green-600 dark:text-green-400'
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-green-600 dark:text-green-400"
                         }`}
                       >
                         {product.stock}
@@ -129,7 +155,7 @@ const ProductsPage = () => {
         )}
       </div>
 
-      {!loading && !error && (
+      {!state.loading && !state.error && (
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Showing {filteredProducts.length} of {products.length} products
         </p>

@@ -1,5 +1,13 @@
-import { StatCard } from '../components';
-import type { StatCardData } from '../types/dashboard';
+import { StatCard } from "../components";
+import { AlertCard } from "../components";
+import { MessageCard } from "../components";
+import { NotificationCard } from "../components";
+import type {
+  StatCardData,
+  AlertCardData,
+  MessageCardData,
+  NotificationsCardData,
+} from "../types/dashboard";
 import {
   FiUsers,
   FiDollarSign,
@@ -7,63 +15,149 @@ import {
   FiActivity,
   FiTrendingUp,
   FiPackage,
-} from 'react-icons/fi';
+} from "react-icons/fi";
+const notificationsData: NotificationsCardData[] = [
+  {
+    id: 1,
+    title: "New Login Detected",
+    description: "A new device signed into your account",
+    priority: "high",
+    time: "2 min ago",
+  },
 
+  {
+    id: 2,
+    title: "Subscription Expiring",
+    description: "Your premium plan expires tomorrow",
+    priority: "medium",
+    time: "1 hour ago",
+  },
+
+  {
+    id: 3,
+    title: "New Comment",
+    description: "Someone commented on your post",
+    priority: "low",
+    time: "3 hours ago",
+  },
+];
+const messagesData: MessageCardData[] = [
+  {
+    id: 1,
+    sender: "Akram",
+    text: "Hello there",
+    status: "read",
+  },
+  {
+    id: 2,
+    sender: "Sara",
+    text: "Server failed",
+    status: "failed",
+  },
+  {
+    id: 3,
+    sender: "John",
+    text: "Message sent",
+    status: "sent",
+  },
+];
+const alertsData: AlertCardData[] = [
+  {
+    id: "a1",
+    title: "System Update Available",
+    message:
+      "Version 3.2.1 is ready to install. Schedule a maintenance window.",
+    severity: "info",
+    timestamp: "10 minutes ago",
+    dismissible: true,
+  },
+  {
+    id: "a2",
+    title: "High Memory Usage",
+    message: "Server memory is at 87%. Consider scaling up your instance.",
+    severity: "warning",
+    timestamp: "32 minutes ago",
+    dismissible: true,
+  },
+  {
+    id: "a3",
+    title: "Payment Gateway Error",
+    message: "3 transactions failed in the last hour. Check your API keys.",
+    severity: "danger",
+    timestamp: "1 hour ago",
+    dismissible: false,
+  },
+  {
+    id: "a4",
+    title: "Backup Completed",
+    message: "Daily database backup finished successfully. 2.3 GB stored.",
+    severity: "success",
+    timestamp: "3 hours ago",
+    dismissible: true,
+  },
+];
 // Mock data for statistics
 const statsData: StatCardData[] = [
   {
-    id: '1',
-    label: 'Total Users',
-    value: '2,543',
+    id: "1",
+    label: "Total Users",
+    value: "2,543",
     change: 12.5,
     icon: <FiUsers />,
-    color: 'blue',
+    color: "blue",
+    description: "Related information for id =1.",
   },
   {
-    id: '2',
-    label: 'Revenue',
-    value: '$45,231',
+    id: "2",
+    label: "Revenue",
+    value: "$45,231",
     change: 8.2,
     icon: <FiDollarSign />,
-    color: 'green',
+    color: "green",
+    description: "Related information for id =2.",
   },
   {
-    id: '3',
-    label: 'Orders',
-    value: '1,234',
+    id: "3",
+    label: "Orders",
+    value: "1,234",
     change: -3.1,
     icon: <FiShoppingCart />,
-    color: 'purple',
+    color: "purple",
+    description: "Related information for id =3.",
   },
   {
-    id: '4',
-    label: 'Active Sessions',
-    value: '892',
+    id: "4",
+    label: "Active Sessions",
+    value: "892",
     change: 15.3,
     icon: <FiActivity />,
-    color: 'orange',
+    color: "orange",
+    description: "Related information for id =4.",
   },
   {
-    id: '5',
-    label: 'Conversion Rate',
-    value: '3.24%',
+    id: "5",
+    label: "Conversion Rate",
+    value: "3.24%",
     change: 2.4,
     icon: <FiTrendingUp />,
-    color: 'blue',
+    color: "blue",
+    description: "Related information for id =5.",
   },
   {
-    id: '6',
-    label: 'Products',
-    value: '567',
+    id: "6",
+    label: "Products",
+    value: "567",
     change: 5.7,
     icon: <FiPackage />,
-    color: 'red',
+    color: "red",
+    description: "Related information for id =6.",
   },
 ];
+const activity = "this is summer";
 
 const DashboardPage = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-26">
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-800">Dashboard Overview</h1>
@@ -75,7 +169,38 @@ const DashboardPage = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statsData.map((stat) => (
-          <StatCard key={stat.id} data={stat} />
+          <StatCard key={stat.id} data={stat} statActivity={activity} />
+        ))}
+      </div>
+      {/* Alert Grid */}
+      <div>
+        {alertsData.map((alert) => (
+          <AlertCard
+            id={alert.id}
+            title={alert.title}
+            message={alert.message}
+            serverity={alert.severity}
+            timestamp={alert.dismissible}
+          />
+        ))}
+      </div>
+
+      {/* MessageGrid*/}
+      <div>
+        {messagesData.map((message) => (
+          <MessageCard key={message.id} data={message} />
+        ))}
+      </div>
+      {/*NotificationGrid*/}
+      <div>
+        {notificationsData.map((notification) => (
+          <NotificationCard
+            id={notification.id}
+            priority={notification.priority}
+            time={notification.time}
+            title={notification.title}
+            description={notification.description}
+          />
         ))}
       </div>
 
@@ -117,7 +242,9 @@ const DashboardPage = () => {
             </div>
             <div className="flex-1">
               <p className="text-gray-800 font-medium">New user registered</p>
-              <p className="text-sm text-gray-500">John Doe joined the platform</p>
+              <p className="text-sm text-gray-500">
+                John Doe joined the platform
+              </p>
               <p className="text-xs text-gray-400 mt-1">2 minutes ago</p>
             </div>
           </div>
@@ -152,7 +279,9 @@ const DashboardPage = () => {
             </div>
             <div className="flex-1">
               <p className="text-gray-800 font-medium">System alert</p>
-              <p className="text-sm text-gray-500">Server response time improved</p>
+              <p className="text-sm text-gray-500">
+                Server response time improved
+              </p>
               <p className="text-xs text-gray-400 mt-1">3 hours ago</p>
             </div>
           </div>
