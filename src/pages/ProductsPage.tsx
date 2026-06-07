@@ -98,7 +98,20 @@ const ProductsPage = () => {
   };
 
   const handleSubmit = () => {
-    setState((prev) => ({ ...prev, formLoading: true, error: "" }));
+    if (!formData.name.trim() || !formData.category.trim()) {
+      setState((prev) => ({
+        ...prev,
+        error: "Name and category are required.",
+      }));
+
+      return;
+    }
+
+    setState((prev) => ({
+      ...prev,
+      formLoading: true,
+      error: "",
+    }));
 
     const url = selectedProduct
       ? `http://localhost:3001/api/products/${selectedProduct.id}`
