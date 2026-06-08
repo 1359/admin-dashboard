@@ -55,6 +55,11 @@ const ProductsPage = () => {
         }));
       });
   };
+  // This useEffect runs after EVERY render
+  // because no dependency array [] is provided.
+  useEffect(() => {
+    console.log("Component rendered");
+  });
 
   useEffect(() => {
     fetchProducts();
@@ -73,6 +78,14 @@ const ProductsPage = () => {
         : { name: "", category: "", price: 0, stock: 0 },
     );
   }, [selectedProduct]);
+
+  useEffect(() => {
+    console.log("hello hello");
+  }, [formData.name]);
+
+  useEffect(() => {
+    console.log("error error");
+  }, [state.error]);
 
   const categories = [...new Set(products.map((p) => p.category))];
 
@@ -95,13 +108,33 @@ const ProductsPage = () => {
       ...prev,
       [name]: name === "price" || name === "stock" ? Number(value) : value,
     }));
+    setState((prev) => ({
+      ...prev,
+      error: "",
+    }));
   };
 
   const handleSubmit = () => {
-    if (!formData.name.trim() || !formData.category.trim()) {
+    if (!formData.name.trim() && !formData.category.trim()) {
       setState((prev) => ({
         ...prev,
         error: "Name and category are required.",
+      }));
+
+      return;
+    }
+    if (!formData.name.trim()) {
+      setState((prev) => ({
+        ...prev,
+        error: "Name is required.",
+      }));
+
+      return;
+    }
+    if (!formData.category.trim()) {
+      setState((prev) => ({
+        ...prev,
+        error: "Category is required.",
       }));
 
       return;
@@ -269,6 +302,11 @@ const ProductsPage = () => {
                 ? "Save Changes"
                 : "+ Add Product"}
           </button>
+          {state.error && (
+            <div className="flex items-center justify-center">
+              <p className="text-red-500">{state.error}</p>
+            </div>
+          )}
           {selectedProduct && (
             <button
               onClick={() => setSelectedProduct(null)}
@@ -317,10 +355,6 @@ const ProductsPage = () => {
             <p className="text-gray-500 dark:text-gray-400">
               Loading products...
             </p>
-          </div>
-        ) : state.error ? (
-          <div className="flex items-center justify-center h-64">
-            <p className="text-red-500">{state.error}</p>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 gap-2">
