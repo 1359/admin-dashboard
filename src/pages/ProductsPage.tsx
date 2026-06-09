@@ -1,69 +1,44 @@
 import { useState, useEffect } from "react";
 import { FiSearch, FiPackage } from "react-icons/fi";
 import FilterBar from "../components/Filter";
+import { useProducts, type Product } from "../hooks/useProducts";
 
-interface Product {
-  id: number;
+type SortBy = "name" | "price" | "stock";
+
+interface ProductsState {
+  searchQuery: string;
+  sortBy: SortBy;
+  category: string;
+  formLoading: boolean;
+}
+interface ProductFormData {
   name: string;
   category: string;
   price: number;
   stock: number;
 }
 
-type SortBy = "name" | "price" | "stock";
-
-interface ProductsState {
-  loading: boolean;
-  error: string;
-  searchQuery: string;
-  sortBy: SortBy;
-  category: string;
-  formLoading: boolean;
-}
-
 const ProductsPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const { products, loading, error, fetchProducts } = useProducts();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     category: "",
     price: 0,
     stock: 0,
   });
   const [state, setState] = useState<ProductsState>({
-    loading: true,
-    error: "",
     searchQuery: "",
     sortBy: "name",
     category: "",
     formLoading: false,
   });
 
-  const fetchProducts = () => {
-    setState((prev) => ({ ...prev, loading: true, error: "" }));
-    fetch("http://localhost:3001/api/products")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
-        setState((prev) => ({ ...prev, loading: false }));
-      })
-      .catch(() => {
-        setState((prev) => ({
-          ...prev,
-          loading: false,
-          error: "Failed to load products.",
-        }));
-      });
-  };
   // This useEffect runs after EVERY render
   // because no dependency array [] is provided.
   useEffect(() => {
     console.log("Component rendered");
   });
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   // When selectedProduct changes → fill the form. When null → clear it.
   useEffect(() => {
@@ -75,17 +50,14 @@ const ProductsPage = () => {
             price: selectedProduct.price,
             stock: selectedProduct.stock,
           }
-        : { name: "", category: "", price: 0, stock: 0 },
+        : (console.log("null null null"),
+          { name: "", category: "", price: 0, stock: 0 }),
     );
   }, [selectedProduct]);
 
   useEffect(() => {
-    console.log("hello hello");
-  }, [formData.name]);
-
-  useEffect(() => {
-    console.log("error error");
-  }, [state.error]);
+    if (formData.price > 300) console.log("hello hello");
+  }, [formData.price]);
 
   const categories = [...new Set(products.map((p) => p.category))];
 
@@ -302,9 +274,9 @@ const ProductsPage = () => {
                 ? "Save Changes"
                 : "+ Add Product"}
           </button>
-          {state.error && (
+          {error && (
             <div className="flex items-center justify-center">
-              <p className="text-red-500">{state.error}</p>
+              <p className="text-red-500">{error}</p>
             </div>
           )}
           {selectedProduct && (
@@ -350,7 +322,7 @@ const ProductsPage = () => {
 
       {/* Content */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        {state.loading ? (
+        {loading ? (
           <div className="flex items-center justify-center h-64">
             <p className="text-gray-500 dark:text-gray-400">
               Loading products...
@@ -415,6 +387,11 @@ const ProductsPage = () => {
                         }`}
                       >
                         {product.stock}
+                        {product.stock === 0 && (
+                          <span style={{ marginLeft: "26px" }}>
+                            Out of stock
+                          </span>
+                        )}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm">
@@ -448,7 +425,7 @@ const ProductsPage = () => {
         )}
       </div>
 
-      {!state.loading && !state.error && (
+      {!loading && !error && (
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Showing {filteredProducts.length} of {products.length} products
         </p>
