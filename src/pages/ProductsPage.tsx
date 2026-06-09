@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 import { FiSearch, FiPackage } from "react-icons/fi";
 import FilterBar from "../components/Filter";
 import { useProducts, type Product } from "../hooks/useProducts";
@@ -6,9 +7,6 @@ import { useProducts, type Product } from "../hooks/useProducts";
 type SortBy = "name" | "price" | "stock";
 
 interface ProductsState {
-  searchQuery: string;
-  sortBy: SortBy;
-  category: string;
   formLoading: boolean;
 }
 interface ProductFormData {
@@ -28,11 +26,17 @@ const ProductsPage = () => {
     stock: 0,
   });
   const [state, setState] = useState<ProductsState>({
-    searchQuery: "",
-    sortBy: "name",
-    category: "",
     formLoading: false,
   });
+  const [sortBy, setSortBy] = useLocalStorage<SortBy>("products.sortBy", "name");
+  const [searchQuery, setSearchQuery] = useLocalStorage<string>(
+    "products.searchQuery",
+    "",
+  );
+  const [category, setCategory] = useLocalStorage<string>(
+    "products.category",
+    "",
+  );
 
   // This useEffect runs after EVERY render
   // because no dependency array [] is provided.
@@ -61,16 +65,18 @@ const ProductsPage = () => {
 
   const categories = [...new Set(products.map((p) => p.category))];
 
+  const query = String(searchQuery ?? "").toLowerCase();
+
   const filteredProducts = products
     .filter(
       (p) =>
-        (state.category === "" || p.category === state.category) &&
-        (p.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-          p.category.toLowerCase().includes(state.searchQuery.toLowerCase())),
+        (category === "" || p.category === category) &&
+        (p.name.toLowerCase().includes(query) ||
+          p.category.toLowerCase().includes(query)),
     )
     .sort((a, b) => {
-      if (state.sortBy === "name") return a.name.localeCompare(b.name);
-      if (state.sortBy === "price") return a.price - b.price;
+      if (sortBy === "name") return a.name.localeCompare(b.name);
+      if (sortBy === "price") return a.price - b.price;
       return a.stock - b.stock;
     });
 
@@ -300,10 +306,8 @@ const ProductsPage = () => {
           <input
             type="text"
             placeholder="Search by name or category..."
-            value={state.searchQuery}
-            onChange={(e) =>
-              setState((prev) => ({ ...prev, searchQuery: e.target.value }))
-            }
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -311,12 +315,10 @@ const ProductsPage = () => {
 
       {/* Filter Bar */}
       <FilterBar
-        sortBy={state.sortBy}
-        onSortChange={(val) => setState((prev) => ({ ...prev, sortBy: val }))}
-        category={state.category}
-        onCategoryChange={(val) =>
-          setState((prev) => ({ ...prev, category: val }))
-        }
+        sortBy={sortBy}
+        onSortChange={(val) => setSortBy(val)}
+        category={category}
+        onCategoryChange={(val) => setCategory(val)}
         categories={categories}
       />
 

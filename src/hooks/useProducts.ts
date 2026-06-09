@@ -10,28 +10,27 @@ export interface Product {
 
 
 export function useProducts(){
-     const [products, setProducts] = useState<Product[]>([]);
-     const [ loading,setLoading]=useState<boolean>(false);
-     const [error,setError]=useState<string>("");
-     
-     
-    
- const fetchProducts = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchProducts = () => {
     setLoading(true);
     setError("");
     fetch("http://localhost:3001/api/products")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
-            setLoading(false);
-
+      .then((res) => {
+        if (!res.ok) throw new Error("Request failed");
+        return res.json();
+      })
+      .then((data: Product[]) => {
+        setProducts(Array.isArray(data) ? data : []);
+        setLoading(false);
       })
       .catch(() => {
         setLoading(false);
         setError("Failed to load products.");
-       
-        });
-      };
+      });
+  };
        useEffect(() => {
     fetchProducts();
   }, []);
