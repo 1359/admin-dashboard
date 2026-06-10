@@ -1,75 +1,10 @@
-import { useState } from 'react';
-import { FiSend, FiCheckCircle } from 'react-icons/fi';
-
-interface FormFields {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  rating: string;
-}
-
-interface FormErrors {
-  name?: string;
-  email?: string;
-  subject?: string;
-  message?: string;
-  rating?: string;
-}
+import { useState } from "react";
+import { FiSend, FiCheckCircle } from "react-icons/fi";
+import { useFeedbackForm } from "../hooks/useFeedbackForm";
 
 const FeedbackPage = () => {
-  const [fields, setFields] = useState<FormFields>({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-    rating: '',
-  });
-
-  const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFields((prev) => ({ ...prev, [name]: value }));
-    // Clear the error for this field as the user types
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
-  };
-
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!fields.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-
-    if (!fields.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) {
-      newErrors.email = 'Enter a valid email address';
-    }
-
-    if (!fields.subject.trim()) {
-      newErrors.subject = 'Subject is required';
-    }
-
-    if (!fields.message.trim()) {
-      newErrors.message = 'Message is required';
-    } else if (fields.message.trim().length < 10) {
-      newErrors.message = 'Message must be at least 10 characters';
-    }
-
-    if (!fields.rating) {
-      newErrors.rating = 'Please select a rating';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const { errors, fields, validate, handleChange, reset } = useFeedbackForm();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,10 +12,8 @@ const FeedbackPage = () => {
       setSubmitted(true);
     }
   };
-
   const handleReset = () => {
-    setFields({ name: '', email: '', subject: '', message: '', rating: '' });
-    setErrors({});
+    reset();
     setSubmitted(false);
   };
 
@@ -88,8 +21,12 @@ const FeedbackPage = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Feedback</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Share your thoughts with us</p>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+            Feedback
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Share your thoughts with us
+          </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-10 flex flex-col items-center gap-4 text-center">
@@ -98,7 +35,8 @@ const FeedbackPage = () => {
             Thank you, {fields.name}!
           </h2>
           <p className="text-gray-500 dark:text-gray-400 max-w-sm">
-            Your feedback has been received. We appreciate you taking the time to share your thoughts.
+            Your feedback has been received. We appreciate you taking the time
+            to share your thoughts.
           </p>
           <button
             onClick={handleReset}
@@ -115,16 +53,22 @@ const FeedbackPage = () => {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Feedback</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">Share your thoughts with us</p>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Feedback
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Share your thoughts with us
+        </p>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 max-w-2xl">
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
-
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Full Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -135,7 +79,9 @@ const FeedbackPage = () => {
               onChange={handleChange}
               placeholder="John Doe"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
-                errors.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                errors.name
+                  ? "border-red-500"
+                  : "border-gray-300 dark:border-gray-600"
               }`}
             />
             {errors.name && (
@@ -145,7 +91,10 @@ const FeedbackPage = () => {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Email Address <span className="text-red-500">*</span>
             </label>
             <input
@@ -156,7 +105,9 @@ const FeedbackPage = () => {
               onChange={handleChange}
               placeholder="john@example.com"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
-                errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                errors.email
+                  ? "border-red-500"
+                  : "border-gray-300 dark:border-gray-600"
               }`}
             />
             {errors.email && (
@@ -166,7 +117,10 @@ const FeedbackPage = () => {
 
           {/* Subject */}
           <div>
-            <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="subject"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Subject <span className="text-red-500">*</span>
             </label>
             <input
@@ -177,7 +131,9 @@ const FeedbackPage = () => {
               onChange={handleChange}
               placeholder="What is this about?"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
-                errors.subject ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                errors.subject
+                  ? "border-red-500"
+                  : "border-gray-300 dark:border-gray-600"
               }`}
             />
             {errors.subject && (
@@ -187,7 +143,10 @@ const FeedbackPage = () => {
 
           {/* Rating */}
           <div>
-            <label htmlFor="rating" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="rating"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Rating <span className="text-red-500">*</span>
             </label>
             <select
@@ -196,7 +155,9 @@ const FeedbackPage = () => {
               value={fields.rating}
               onChange={handleChange}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
-                errors.rating ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                errors.rating
+                  ? "border-red-500"
+                  : "border-gray-300 dark:border-gray-600"
               }`}
             >
               <option value="">Select a rating...</option>
@@ -213,7 +174,10 @@ const FeedbackPage = () => {
 
           {/* Message */}
           <div>
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="message"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Message <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -224,7 +188,9 @@ const FeedbackPage = () => {
               rows={5}
               placeholder="Write your feedback here..."
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white resize-none ${
-                errors.message ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                errors.message
+                  ? "border-red-500"
+                  : "border-gray-300 dark:border-gray-600"
               }`}
             />
             <div className="flex justify-between mt-1">
@@ -233,7 +199,9 @@ const FeedbackPage = () => {
               ) : (
                 <span />
               )}
-              <p className="text-xs text-gray-400">{fields.message.length} chars</p>
+              <p className="text-xs text-gray-400">
+                {fields.message.length} chars
+              </p>
             </div>
           </div>
 

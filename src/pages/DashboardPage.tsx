@@ -2,6 +2,7 @@ import { StatCard } from "../components";
 import { AlertCard } from "../components";
 import { MessageCard } from "../components";
 import { NotificationCard } from "../components";
+import { useProducts } from "../hooks/useProducts";
 import type {
   StatCardData,
   AlertCardData,
@@ -97,65 +98,67 @@ const alertsData: AlertCardData[] = [
   },
 ];
 // Mock data for statistics
-const statsData: StatCardData[] = [
-  {
-    id: "1",
-    label: "Total Users",
-    value: "2,543",
-    change: 12.5,
-    icon: <FiUsers />,
-    color: "blue",
-    description: "Related information for id =1.",
-  },
-  {
-    id: "2",
-    label: "Revenue",
-    value: "$45,231",
-    change: 8.2,
-    icon: <FiDollarSign />,
-    color: "green",
-    description: "Related information for id =2.",
-  },
-  {
-    id: "3",
-    label: "Orders",
-    value: "1,234",
-    change: -3.1,
-    icon: <FiShoppingCart />,
-    color: "purple",
-    description: "Related information for id =3.",
-  },
-  {
-    id: "4",
-    label: "Active Sessions",
-    value: "892",
-    change: 15.3,
-    icon: <FiActivity />,
-    color: "orange",
-    description: "Related information for id =4.",
-  },
-  {
-    id: "5",
-    label: "Conversion Rate",
-    value: "3.24%",
-    change: 2.4,
-    icon: <FiTrendingUp />,
-    color: "blue",
-    description: "Related information for id =5.",
-  },
-  {
-    id: "6",
-    label: "Products",
-    value: "567",
-    change: 5.7,
-    icon: <FiPackage />,
-    color: "red",
-    description: "Related information for id =6.",
-  },
-];
+
 const activity = "this is summer";
 
 const DashboardPage = () => {
+  const { products } = useProducts();
+  const statsData: StatCardData[] = [
+    {
+      id: "1",
+      label: "Total Users",
+      value: "2,543",
+      change: 12.5,
+      icon: <FiUsers />,
+      color: "blue",
+      description: "Related information for id =1.",
+    },
+    {
+      id: "2",
+      label: "Revenue",
+      value: "$45,231",
+      change: 8.2,
+      icon: <FiDollarSign />,
+      color: "green",
+      description: "Related information for id =2.",
+    },
+    {
+      id: "3",
+      label: "Orders",
+      value: "1,234",
+      change: -3.1,
+      icon: <FiShoppingCart />,
+      color: "purple",
+      description: "Related information for id =3.",
+    },
+    {
+      id: "4",
+      label: "Active Sessions",
+      value: "892",
+      change: 15.3,
+      icon: <FiActivity />,
+      color: "orange",
+      description: "Related information for id =4.",
+    },
+    {
+      id: "5",
+      label: "Conversion Rate",
+      value: "3.24%",
+      change: 2.4,
+      icon: <FiTrendingUp />,
+      color: "blue",
+      description: "Related information for id =5.",
+    },
+    {
+      id: "6",
+      label: "Products",
+      value: products.length,
+      change: 5.7,
+      icon: <FiPackage />,
+      color: "red",
+      description: "Related information for id =6.",
+    },
+  ];
   return (
     <div className="space-y-26">
       {/* Page Header */}
