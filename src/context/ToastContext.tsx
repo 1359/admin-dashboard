@@ -4,11 +4,16 @@ import {
   useState,
   useCallback,
   ReactNode,
-} from 'react';
-import { createPortal } from 'react-dom';
-import { FiCheckCircle, FiXCircle, FiInfo, FiAlertTriangle, FiX } from 'react-icons/fi';
-
-type ToastType = 'success' | 'error' | 'info' | 'warning';
+} from "react";
+import { createPortal } from "react-dom";
+import {
+  FiCheckCircle,
+  FiXCircle,
+  FiInfo,
+  FiAlertTriangle,
+  FiX,
+} from "react-icons/fi";
+type ToastType = "success" | "error" | "info" | "warning";
 
 interface ToastItem {
   id: string;
@@ -25,21 +30,21 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-const toastStyles: Record<ToastType, { container: string; icon: JSX.Element }> = {
+const toastStyles: Record<ToastType, { container: string; icon: ReactNode }> = {
   success: {
-    container: 'bg-green-50 border-green-400 text-green-800',
+    container: "bg-green-50 border-green-400 text-green-800",
     icon: <FiCheckCircle className="text-green-500" size={20} />,
   },
   error: {
-    container: 'bg-red-50 border-red-400 text-red-800',
+    container: "bg-red-50 border-red-400 text-red-800",
     icon: <FiXCircle className="text-red-500" size={20} />,
   },
   info: {
-    container: 'bg-blue-50 border-blue-400 text-blue-800',
+    container: "bg-blue-50 border-blue-400 text-blue-800",
     icon: <FiInfo className="text-blue-500" size={20} />,
   },
   warning: {
-    container: 'bg-yellow-50 border-yellow-400 text-yellow-800',
+    container: "bg-yellow-50 border-yellow-400 text-yellow-800",
     icon: <FiAlertTriangle className="text-yellow-500" size={20} />,
   },
 };
@@ -59,10 +64,10 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
 
   const value: ToastContextValue = {
-    success: (msg) => addToast(msg, 'success'),
-    error: (msg) => addToast(msg, 'error'),
-    info: (msg) => addToast(msg, 'info'),
-    warning: (msg) => addToast(msg, 'warning'),
+    success: (msg) => addToast(msg, "success"),
+    error: (msg) => addToast(msg, "error"),
+    info: (msg) => addToast(msg, "info"),
+    warning: (msg) => addToast(msg, "warning"),
   };
 
   return (
@@ -89,7 +94,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
             );
           })}
         </div>,
-        document.body
+        document.body,
       )}
     </ToastContext.Provider>
   );
@@ -97,6 +102,6 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
 
 export const useToast = (): ToastContextValue => {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used inside ToastProvider');
+  if (!ctx) throw new Error("useToast must be used inside ToastProvider");
   return ctx;
 };

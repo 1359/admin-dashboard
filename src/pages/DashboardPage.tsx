@@ -3,6 +3,8 @@ import { AlertCard } from "../components";
 import { MessageCard } from "../components";
 import { NotificationCard } from "../components";
 import { useProducts } from "../hooks/useProducts";
+import { useNotification } from "../context/NotificationContext";
+
 import type {
   StatCardData,
   AlertCardData,
@@ -17,6 +19,7 @@ import {
   FiTrendingUp,
   FiPackage,
 } from "react-icons/fi";
+
 const notificationsData: NotificationsCardData[] = [
   {
     id: 1,
@@ -102,6 +105,8 @@ const alertsData: AlertCardData[] = [
 const activity = "this is summer";
 
 const DashboardPage = () => {
+  const { showNotification } = useNotification();
+
   const { products } = useProducts();
   const statsData: StatCardData[] = [
     {
@@ -229,6 +234,16 @@ const DashboardPage = () => {
             <FiActivity />
             View Reports
           </button>
+          <div className="mb-4">
+            <button
+              onClick={() =>
+                showNotification("This is a notification from Dashboard")
+              }
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Test Notification
+            </button>
+          </div>
         </div>
       </div>
 

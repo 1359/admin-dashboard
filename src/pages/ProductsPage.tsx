@@ -1,13 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { FiSearch, FiPackage } from "react-icons/fi";
 import FilterBar from "../components/Filter";
 import { useProducts, type Product } from "../hooks/useProducts";
+import { useConfirm } from "../context/confirmContext";
 
 type SortBy = "name" | "price" | "stock";
 
 interface ProductsState {
   formLoading: boolean;
+  formError: string;
+  category: string;
+  searchQuery: string;
+  sortBy: SortBy;
 }
 interface ProductFormData {
   name: string;
@@ -16,8 +21,49 @@ interface ProductFormData {
   stock: number;
 }
 
+type ProductsAction =
+  | { type: "REQUEST_START" }
+  | { type: "REQUEST_SUCCESS" }
+  | { type: "REQUEST_ERROR"; payload: string }
+  | { type: "SET_FORM_ERROR"; payload: string }
+  | { type: "SET_SEARCH"; payload: string }
+  | { type: "SET_SORT"; payload: SortBy }
+  | { type: "SET_CATEGORY"; payload: string };
+
+const initialState: ProductsState = {
+  formLoading: false,
+  formError: "",
+  category: "",
+  searchQuery: "",
+  sortBy: "name",
+};
+function productReducer(
+  state: ProductsState,
+  action: ProductsAction,
+): ProductsState {
+  switch (action.type) {
+    case "REQUEST_START":
+      return { ...state, formLoading: true, formError: "" };
+    case "REQUEST_SUCCESS":
+      return { ...state, formLoading: false };
+    case "REQUEST_ERROR":
+      return { ...state, formLoading: false, formError: action.payload };
+    case "SET_FORM_ERROR":
+      return { ...state, formError: action.payload };
+    case "SET_SEARCH":
+      return { ...state, searchQuery: action.payload };
+    case "SET_CATEGORY":
+      return { ...state, category: action.payload };
+    case "SET_SORT":
+      return { ...state, sortBy: action.payload };
+    default:
+      return state;
+  }
+}
+
 const ProductsPage = () => {
   const { products, loading, error, fetchProducts } = useProducts();
+  const { confirm } = useConfirm();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
@@ -25,18 +71,7 @@ const ProductsPage = () => {
     price: 0,
     stock: 0,
   });
-  const [state, setState] = useState<ProductsState>({
-    formLoading: false,
-  });
-  const [sortBy, setSortBy] = useLocalStorage<SortBy>("products.sortBy", "name");
-  const [searchQuery, setSearchQuery] = useLocalStorage<string>(
-    "products.searchQuery",
-    "",
-  );
-  const [category, setCategory] = useLocalStorage<string>(
-    "products.category",
-    "",
-  );
+  const [state, dispatch] = useReducer(productReducer, initialState);
 
   // This useEffect runs after EVERY render
   // because no dependency array [] is provided.
@@ -65,18 +100,18 @@ const ProductsPage = () => {
 
   const categories = [...new Set(products.map((p) => p.category))];
 
-  const query = String(searchQuery ?? "").toLowerCase();
+  const query = String(state.searchQuery ?? "").toLowerCase();
 
   const filteredProducts = products
     .filter(
       (p) =>
-        (category === "" || p.category === category) &&
+        (state.category === "" || p.category === state.category) &&
         (p.name.toLowerCase().includes(query) ||
           p.category.toLowerCase().includes(query)),
     )
     .sort((a, b) => {
-      if (sortBy === "name") return a.name.localeCompare(b.name);
-      if (sortBy === "price") return a.price - b.price;
+      if (state.sortBy === "name") return a.name.localeCompare(b.name);
+      if (state.sortBy === "price") return a.price - b.price;
       return a.stock - b.stock;
     });
 
@@ -86,43 +121,37 @@ const ProductsPage = () => {
       ...prev,
       [name]: name === "price" || name === "stock" ? Number(value) : value,
     }));
-    setState((prev) => ({
-      ...prev,
-      error: "",
-    }));
+    dispatch({ type: "SET_FORM_ERROR", payload: "" });
   };
 
   const handleSubmit = () => {
     if (!formData.name.trim() && !formData.category.trim()) {
-      setState((prev) => ({
-        ...prev,
-        error: "Name and category are required.",
-      }));
+      dispatch({
+        type: "SET_FORM_ERROR",
+        payload: "Name and category are required.",
+      });
 
       return;
     }
     if (!formData.name.trim()) {
-      setState((prev) => ({
-        ...prev,
-        error: "Name is required.",
-      }));
-
+      dispatch({ type: "SET_FORM_ERROR", payload: "Name is required." });
       return;
     }
     if (!formData.category.trim()) {
-      setState((prev) => ({
-        ...prev,
-        error: "Category is required.",
-      }));
+      dispatch({ type: "SET_FORM_ERROR", payload: "Category is required." });
 
       return;
     }
-
-    setState((prev) => ({
-      ...prev,
-      formLoading: true,
-      error: "",
-    }));
+    confirm({
+      message: selectedProduct
+        ? "Are you want to edit this product?"
+        : "Are you want to add this product?",
+      onConfirm: doSubmit,
+      confirmText: selectedProduct ? "Edit" : "Add",
+    });
+  };
+  function doSubmit() {
+    dispatch({ type: "REQUEST_START" });
 
     const url = selectedProduct
       ? `http://localhost:3001/api/products/${selectedProduct.id}`
@@ -140,37 +169,31 @@ const ProductsPage = () => {
         return res.json();
       })
       .then(() => {
-        setState((prev) => ({ ...prev, formLoading: false }));
+        dispatch({ type: "REQUEST_SUCCESS" });
         setSelectedProduct(null);
         fetchProducts();
       })
       .catch(() => {
-        setState((prev) => ({
-          ...prev,
-          formLoading: false,
-          error: "Failed to save product.",
-        }));
+        dispatch({ type: "REQUEST_ERROR", payload: "Failed to save product." });
       });
-  };
+  }
 
   const handleDelete = (product: Product) => {
-    setState((prev) => ({ ...prev, formLoading: true, error: "" }));
-
+    dispatch({ type: "REQUEST_START" });
     fetch(`http://localhost:3001/api/products/${product.id}`, {
       method: "DELETE",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Delete failed");
-        setState((prev) => ({ ...prev, formLoading: false }));
+        dispatch({ type: "REQUEST_SUCCESS" });
         if (selectedProduct?.id === product.id) setSelectedProduct(null);
         fetchProducts();
       })
       .catch(() => {
-        setState((prev) => ({
-          ...prev,
-          formLoading: false,
-          error: "Failed to delete product.",
-        }));
+        dispatch({
+          type: "REQUEST_ERROR",
+          payload: "Failed to delete product.",
+        });
       });
   };
 
@@ -280,9 +303,9 @@ const ProductsPage = () => {
                 ? "Save Changes"
                 : "+ Add Product"}
           </button>
-          {error && (
+          {state.formError && (
             <div className="flex items-center justify-center">
-              <p className="text-red-500">{error}</p>
+              <p className="text-red-500">{state.formError}</p>
             </div>
           )}
           {selectedProduct && (
@@ -306,8 +329,10 @@ const ProductsPage = () => {
           <input
             type="text"
             placeholder="Search by name or category..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={state.searchQuery}
+            onChange={(e) =>
+              dispatch({ type: "SET_SEARCH", payload: e.target.value })
+            }
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -315,10 +340,12 @@ const ProductsPage = () => {
 
       {/* Filter Bar */}
       <FilterBar
-        sortBy={sortBy}
-        onSortChange={(val) => setSortBy(val)}
-        category={category}
-        onCategoryChange={(val) => setCategory(val)}
+        sortBy={state.sortBy}
+        onSortChange={(val) => dispatch({ type: "SET_SORT", payload: val })}
+        category={state.category}
+        onCategoryChange={(val: string) =>
+          dispatch({ type: "SET_CATEGORY", payload: val })
+        }
         categories={categories}
       />
 
@@ -410,7 +437,13 @@ const ProductsPage = () => {
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDelete(product)}
+                            onClick={() =>
+                              confirm({
+                                message: `delete"${product.name}"? This is not coming back`,
+                                confirmText: "Delete",
+                                onConfirm: () => handleDelete(product),
+                              })
+                            }
                             disabled={state.formLoading}
                             className="px-3 py-1 text-xs font-medium bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors disabled:opacity-50"
                           >

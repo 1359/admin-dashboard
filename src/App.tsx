@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { MainLayout } from './layouts';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { MainLayout } from "./layouts";
 import {
   DashboardPage,
   UsersPage,
@@ -8,8 +8,9 @@ import {
   SettingsPage,
   LoginPage,
   NotFoundPage,
-} from './pages';
-import { ProtectedRoute } from './components';
+} from "./pages";
+import { ProtectedRoute } from "./components";
+import InventoryPage from "./pages/InventoryPage";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/users"
           element={
@@ -59,6 +61,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <InventoryPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/settings"
           element={

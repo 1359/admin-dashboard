@@ -1,22 +1,47 @@
-import { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Header from './Header';
-import type { NavItem } from '../types/navigation';
-import { FiHome, FiUsers, FiPackage, FiMessageSquare, FiSettings } from 'react-icons/fi';
-import { useAppDispatch, useAppSelector } from '../store/store';
-import { logout, selectAuthUser } from '../store/slices/authSlice';
+import type { ReactNode } from "react";
+import { NotificationBar } from "../components/NotificationBar";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import Header from "./Header";
+import type { NavItem } from "../types/navigation";
+import {
+  FiHome,
+  FiUsers,
+  FiPackage,
+  FiMessageSquare,
+  FiSettings,
+  FiArchive,
+} from "react-icons/fi";
+import { useAppDispatch, useAppSelector } from "../store/store";
+import { logout, selectAuthUser } from "../store/slices/authSlice";
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 const navItems: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', path: '/', icon: <FiHome /> },
-  { id: 'users', label: 'Users', path: '/users', icon: <FiUsers /> },
-  { id: 'products', label: 'Products', path: '/products', icon: <FiPackage /> },
-  { id: 'feedback', label: 'Feedback', path: '/feedback', icon: <FiMessageSquare /> },
-  { id: 'settings', label: 'Settings', path: '/settings', icon: <FiSettings /> },
+  { id: "dashboard", label: "Dashboard", path: "/", icon: <FiHome /> },
+  { id: "users", label: "Users", path: "/users", icon: <FiUsers /> },
+
+  { id: "products", label: "Products", path: "/products", icon: <FiPackage /> },
+  {
+    id: "feedback",
+    label: "Feedback",
+    path: "/feedback",
+    icon: <FiMessageSquare />,
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    path: "/settings",
+    icon: <FiSettings />,
+  },
+  {
+    id: "inventory",
+    label: "inventory",
+    path: "/inventory",
+    icon: <FiArchive />,
+  },
 ];
 
 const MainLayout = ({ children }: MainLayoutProps) => {
@@ -26,7 +51,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -34,6 +59,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <Sidebar navItems={navItems} />
       <div className="ml-64">
         <Header user={user} onLogout={handleLogout} />
+        <NotificationBar />
         <main className="p-6">{children}</main>
       </div>
     </div>
